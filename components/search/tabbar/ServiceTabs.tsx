@@ -1,38 +1,22 @@
-  "use client"
+"use client"
 
 import * as React from "react"
-import { Plane, Hotel, Stamp, Smartphone } from 'lucide-react'
-import { cn } from "@/lib/utils"
+import { Plane, Hotel, Stamp, Smartphone } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 
 const tabs = [
-  {
-    id: "flights",
-    label: "Flight",
-    icon: Plane,
-  },
-  {
-    id: "hotels",
-    label: "Hotel",
-    icon: Hotel,
-  },
-  {
-    id: "visa",
-    label: "Visa",
-    icon: Stamp,
-  },
-  {
-    id: "esim",
-    label: "eSim",
-    icon: Smartphone,
-  },
+  { id: "flights", label: "Flight", icon: Plane },
+  { id: "hotels", label: "Hotel", icon: Hotel },
+  { id: "visa", label: "Visa", icon: Stamp },
+  { id: "esim", label: "eSim", icon: Smartphone },
 ]
 
-interface TabBarProps {
+interface ServiceTabsProps {
   className?: string
 }
 
-export function ServiceTabs({ className }: TabBarProps) {
+export function ServiceTabs({ className }: ServiceTabsProps) {
   return (
     <Tabs defaultValue="flights" className={cn("w-full", className)}>
       <TabsList className="h-14 w-full justify-start gap-4 rounded-none border-b bg-background p-0">

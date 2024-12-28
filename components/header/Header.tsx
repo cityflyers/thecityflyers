@@ -1,61 +1,69 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Bell, Globe, Moon, Search, Sun, User, Menu } from 'lucide-react'
+import { Bell, Globe, Moon, Search, Sun, User, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useTheme } from "next-themes"
 import { LANGUAGES, NOTIFICATIONS } from "@/lib/constants"
-import { Sidebar } from "@/components/sidebar/Sidebar"
 
-export default function Header() {
+interface HeaderProps {
+  onToggleSidebar?: () => void
+}
+
+export default function Header({ onToggleSidebar }: HeaderProps) {
   const [showMobileSearch, setShowMobileSearch] = useState(false)
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  
+
   const { resolvedTheme, setTheme } = useTheme()
 
+  // Wait until client hydration to render
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
     return null
   }
 
   const SearchInput = () => (
     <div className="relative w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        type="text"
         placeholder="Search flights, hotels, visa services..."
-        className="w-full pl-10 bg-background text-foreground placeholder:text-muted-foreground"
-        spellCheck={false}
+        className="w-full bg-background pl-10 text-foreground placeholder:text-muted-foreground"
       />
     </div>
   )
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
-        <div className="h-16 px-4 flex items-center justify-between gap-4">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background">
+        <div className="flex h-16 items-center justify-between gap-4 px-4">
+          {/* Mobile buttons */}
           <div className="flex items-center gap-2 lg:hidden">
-            <Button 
-              variant="ghost" 
+            {/* The hamburger button calls onToggleSidebar if provided */}
+            <Button
+              variant="ghost"
               size="icon"
-              onClick={() => setShowMobileSidebar(true)}
+              onClick={() => {
+                if (onToggleSidebar) {
+                  onToggleSidebar()
+                }
+              }}
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setShowMobileSearch((s) => !s)}
+
+            {/* Mobile search toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowMobileSearch((prev) => !prev)}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -63,18 +71,21 @@ export default function Header() {
 
           <h1 className="text-xl font-bold text-foreground">Travel</h1>
 
-          <div className="hidden lg:flex flex-1 max-w-2xl">
+          {/* Desktop search bar */}
+          <div className="hidden max-w-2xl flex-1 lg:flex">
             <SearchInput />
           </div>
 
+          {/* Right-side icons (language, notifications, theme, user) */}
           <div className="flex items-center gap-2">
+            {/* Language popover */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Globe className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-0 bg-popover" align="end">
+              <PopoverContent align="end" className="w-48 bg-popover p-0">
                 <div className="grid">
                   {LANGUAGES.map((lang) => (
                     <Button
@@ -90,28 +101,34 @@ export default function Header() {
               </PopoverContent>
             </Popover>
 
+            {/* Notifications popover */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
+                  {/* Example: a red dot */}
+                  <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 bg-popover" align="end">
+              <PopoverContent align="end" className="w-80 bg-popover">
                 <div className="grid gap-4">
-                  <h3 className="font-semibold text-popover-foreground">Notifications</h3>
+                  <h3 className="font-semibold text-popover-foreground">
+                    Notifications
+                  </h3>
                   <div className="grid gap-2">
-                    {NOTIFICATIONS.map((notification) => (
+                    {NOTIFICATIONS.map((note) => (
                       <div
-                        key={notification.id}
-                        className="grid gap-1 p-2 hover:bg-muted rounded-lg cursor-pointer"
+                        key={note.id}
+                        className="grid cursor-pointer gap-1 rounded-lg p-2 hover:bg-muted"
                       >
-                        <div className="font-medium text-popover-foreground">{notification.title}</div>
+                        <div className="font-medium text-popover-foreground">
+                          {note.title}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {notification.message}
+                          {note.message}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {notification.time}
+                          {note.time}
                         </div>
                       </div>
                     ))}
@@ -120,11 +137,13 @@ export default function Header() {
               </PopoverContent>
             </Popover>
 
+            {/* Theme toggle */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              aria-label="Toggle theme"
+              onClick={() =>
+                setTheme(resolvedTheme === "dark" ? "light" : "dark")
+              }
             >
               {resolvedTheme === "dark" ? (
                 <Sun className="h-5 w-5" />
@@ -133,13 +152,14 @@ export default function Header() {
               )}
             </Button>
 
+            {/* User popover */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 bg-popover" align="end">
+              <PopoverContent align="end" className="w-48 bg-popover">
                 <div className="grid gap-2">
                   <Button variant="ghost" className="justify-start text-popover-foreground">
                     Sign In
@@ -153,17 +173,13 @@ export default function Header() {
           </div>
         </div>
 
+        {/* Mobile expanded search input */}
         {showMobileSearch && (
-          <div className="p-4 border-t border-border lg:hidden">
+          <div className="border-border border-t p-4 lg:hidden">
             <SearchInput />
           </div>
         )}
       </header>
-
-      <Sidebar 
-        isOpen={showMobileSidebar} 
-        onClose={() => setShowMobileSidebar(false)} 
-      />
     </>
   )
 }
