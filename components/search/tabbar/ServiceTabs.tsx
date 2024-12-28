@@ -1,4 +1,4 @@
-"use client"
+  "use client"
 
 import * as React from "react"
 import { Plane, Hotel, Stamp, Smartphone } from 'lucide-react'
@@ -32,7 +32,7 @@ interface TabBarProps {
   className?: string
 }
 
-export function TabBar({ className }: TabBarProps) {
+export function ServiceTabs({ className }: TabBarProps) {
   return (
     <Tabs defaultValue="flights" className={cn("w-full", className)}>
       <TabsList className="h-14 w-full justify-start gap-4 rounded-none border-b bg-background p-0">
@@ -52,4 +52,3 @@ export function TabBar({ className }: TabBarProps) {
     </Tabs>
   )
 }
-
